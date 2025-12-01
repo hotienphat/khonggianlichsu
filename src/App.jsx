@@ -1,208 +1,210 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, ChevronRight, RefreshCcw, Info } from 'lucide-react';
+import { Volume2, VolumeX, ChevronRight, RefreshCw, Maximize2, RotateCw, BookOpen } from 'lucide-react';
 
 // --- DATA SOURCE ---
-// Dữ liệu được map từ các file bạn đã upload, sắp xếp theo trình tự lịch sử
 const timelineData = [
   {
     id: 1,
     year: "1944",
-    title: "Thành lập Đội Việt Nam Tuyên truyền Giải phóng quân",
-    description: "Ngày 22/12/1944, tại khu rừng Trần Hưng Đạo, Đội Việt Nam Tuyên truyền Giải phóng quân - tiền thân của Quân đội nhân dân Việt Nam được thành lập theo chỉ thị của lãnh tụ Hồ Chí Minh. Đội gồm 34 chiến sĩ, trang bị thô sơ nhưng mang trong mình lòng yêu nước nồng nàn và ý chí quyết chiến quyết thắng.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X50v924lK5j7bXW8H1-YvLzH2v4zR3v_", // 1. Mới thành lập
-    fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Doi_VNTTGPQ.jpg/640px-Doi_VNTTGPQ.jpg"
+    title: "Thành lập Đội VN Tuyên truyền GPQ",
+    description: "Ngày 22/12/1944, tại khu rừng Trần Hưng Đạo, Đội Việt Nam Tuyên truyền Giải phóng quân được thành lập. Với 34 chiến sĩ, trang bị thô sơ nhưng mang trong mình lòng yêu nước nồng nàn, mở đầu cho trang sử vẻ vang của Quân đội nhân dân Việt Nam.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Doi_VNTTGPQ.jpg/800px-Doi_VNTTGPQ.jpg",
   },
   {
     id: 2,
-    year: "1945-1954",
-    title: "Cách mạng Tháng Tám & Kháng chiến chống Pháp",
-    description: "Quân đội ta cùng toàn dân tiến hành Tổng khởi nghĩa Tháng Tám năm 1945 thắng lợi. Sau đó là 9 năm kháng chiến trường kỳ chống thực dân Pháp, những người lính Cụ Hồ với tinh thần 'Quyết tử cho Tổ quốc quyết sinh' đã làm nên những chiến công vang dội.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X2dY87f0397466186a5861993d64559", // 2. CMT8 1954
+    year: "1954",
+    title: "Chín năm làm một Điện Biên",
+    description: "Từ gậy tầm vông đến pháo đài bất khả xâm phạm. Quân đội ta lớn mạnh trong khói lửa, làm nên chiến thắng Điện Biên Phủ 'lừng lẫy năm châu, chấn động địa cầu', kết thúc ách đô hộ của thực dân Pháp.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/9/90/Dien_Bien_Phu_Victory.jpg",
+    fallback: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Doi_VNTTGPQ.jpg/640px-Doi_VNTTGPQ.jpg"
   },
   {
     id: 3,
-    year: "1954",
-    title: "Kéo pháo vào Điện Biên Phủ",
-    description: "Hình ảnh bộ đội ta kéo pháo vào trận địa Điện Biên Phủ. Với khẩu hiệu 'Chân đồng vai sắt', quân đội ta đã vượt qua muôn vàn gian khổ, tạo nên chiến thắng Điện Biên Phủ 'lừng lẫy năm châu, chấn động địa cầu', kết thúc ách đô hộ của thực dân Pháp.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1Xf8c4ec4f8def4248b18150fb0bd4f5f3", // 3. ...
+    year: "1959-1975",
+    title: "Huyền thoại Đường Trường Sơn",
+    description: "Đường mòn Hồ Chí Minh - tuyến hậu cần chiến lược vĩ đại. Hàng triệu thanh niên miền Bắc 'Xẻ dọc Trường Sơn đi cứu nước / Mà lòng phơi phới dậy tương lai' để giải phóng miền Nam thống nhất đất nước.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ho_Chi_Minh_trail_Laos.jpg/800px-Ho_Chi_Minh_trail_Laos.jpg",
   },
   {
     id: 4,
-    year: "1960-1970",
-    title: "Xẻ dọc Trường Sơn đi cứu nước",
-    description: "Trong cuộc kháng chiến chống Mỹ cứu nước, hàng triệu thanh niên miền Bắc đã lên đường nhập ngũ. Đường mòn Hồ Chí Minh trở thành huyền thoại, nơi bộ đội ta hành quân, vận chuyển lương thực, vũ khí chi viện cho chiến trường miền Nam ruột thịt.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X84bddf3f311f45e0936d37e6b979d31d", // 5...
+    year: "1972",
+    title: "Điện Biên Phủ trên không",
+    description: "12 ngày đêm khói lửa năm 1972, bộ đội Phòng không - Không quân đã đánh bại cuộc tập kích chiến lược bằng B-52 của Mỹ vào Hà Nội, buộc Mỹ phải ký Hiệp định Paris, chấm dứt chiến tranh lập lại hòa bình.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/B-52_Dien_Bien_Phu.jpg/800px-B-52_Dien_Bien_Phu.jpg",
   },
   {
     id: 5,
-    year: "1968-1972",
-    title: "Chiến đấu bảo vệ bầu trời",
-    description: "Lực lượng phòng không không quân và dân quân tự vệ phối hợp chiến đấu ngoan cường, bắn rơi nhiều máy bay địch, làm nên trận 'Điện Biên Phủ trên không' năm 1972, buộc Mỹ phải ký hiệp định Paris.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X345deafd4f8047e786a986dbfd47fc2e", // 6...
+    year: "1975",
+    title: "Đại thắng Mùa Xuân",
+    description: "11 giờ 30 phút ngày 30/4/1975, xe tăng của Quân đoàn 2 húc đổ cổng Dinh Độc Lập. Cờ giải phóng tung bay trên nóc phủ Tổng thống ngụy. Chiến dịch Hồ Chí Minh toàn thắng, Bắc Nam sum họp một nhà.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Fall_of_Saigon_1975.jpg", 
   },
   {
     id: 6,
-    year: "1975",
-    title: "Đại thắng Mùa Xuân 1975",
-    description: "Thời khắc lịch sử trưa ngày 30/4/1975, xe tăng của Quân giải phóng húc đổ cổng Dinh Độc Lập, đánh dấu sự thắng lợi hoàn toàn của Chiến dịch Hồ Chí Minh lịch sử. Miền Nam hoàn toàn giải phóng, non sông thu về một mối.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1Xc61c7053bf0d41cf9b36645f9e5eee86", // 4. xe tăng...
-  },
-  {
-    id: 7,
-    year: "1979",
-    title: "Cuộc chiến đấu bảo vệ biên giới",
-    description: "Khi Tổ quốc lâm nguy, quân và dân ta lại một lần nữa đứng lên cầm súng bảo vệ từng tấc đất biên cương phía Bắc và phía Tây Nam. Tinh thần chiến đấu quả cảm đã giữ vững chủ quyền thiêng liêng của dân tộc.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X53f51b347cda4667b4d87added6ab465", // 7...
-  },
-  {
-    id: 8,
-    year: "1980s",
-    title: "Giữ vững tay súng nơi biên cương",
-    description: "Những người lính quân hàm xanh vẫn ngày đêm bám chốt, chịu đựng sương gió để bảo vệ sự bình yên cho nhân dân. Hình ảnh người chiến sĩ B41 tại mặt trận Vị Xuyên là biểu tượng cho sự kiên cường ấy.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X7b59f93408c344acaa139c81575737ec", // 8...
-  },
-  {
-    id: 9,
-    year: "2000s",
-    title: "Hiện đại hóa Quân đội",
-    description: "Bước vào thời bình, Quân đội nhân dân Việt Nam không ngừng lớn mạnh, tiến lên chính quy, tinh nhuệ, hiện đại. Các quân binh chủng hợp thành luôn sẵn sàng chiến đấu cao.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X5229281c8e3247cbb7671cd07990df6e", // 9...
-  },
-  {
-    id: 10,
     year: "Nay",
-    title: "Làm chủ biển đảo quê hương",
-    description: "Hải quân nhân dân Việt Nam ngày nay được trang bị tàu ngầm Kilo, tàu hộ vệ tên lửa hiện đại, cùng lực lượng Cảnh sát biển, Kiểm ngư kiên quyết, kiên trì bảo vệ vững chắc chủ quyền biển đảo thiêng liêng của Tổ quốc.",
-    image: "https://r.jina.ai/https://lh3.googleusercontent.com/d/1X92472cc608764f448a8b1776f0c2c84b", // 10...
+    title: "Chính quy - Tinh nhuệ - Hiện đại",
+    description: "Quân đội nhân dân Việt Nam ngày nay không ngừng lớn mạnh, làm chủ vũ khí trang bị hiện đại, sẵn sàng chiến đấu bảo vệ vững chắc độc lập, chủ quyền, thống nhất, toàn vẹn lãnh thổ, vùng trời, vùng biển của Tổ quốc.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Vietnam_People%27s_Navy_Molniya_corvette.jpg/800px-Vietnam_People%27s_Navy_Molniya_corvette.jpg",
   }
 ];
 
-// --- COMPONENT: Dong Son Drum Pattern SVG ---
+// --- COMPONENT: Dong Son Pattern (Optimized) ---
 const DongSonPattern = ({ className }) => (
   <svg className={className} viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="0.5">
-    <circle cx="50" cy="50" r="48" strokeWidth="1" />
-    <circle cx="50" cy="50" r="40" />
-    <circle cx="50" cy="50" r="30" strokeDasharray="2 1" />
-    <circle cx="50" cy="50" r="20" />
-    {/* Stylized Sun star in center */}
-    <path d="M50 35 L53 45 L63 45 L55 52 L58 62 L50 56 L42 62 L45 52 L37 45 L47 45 Z" fill="currentColor" opacity="0.3"/>
-    {/* Abstract bird motifs (Lac bird) */}
-    <path d="M50 10 Q60 5 70 10" strokeLinecap="round"/>
-    <path d="M50 90 Q40 95 30 90" strokeLinecap="round"/>
-    <path d="M10 50 Q5 40 10 30" strokeLinecap="round"/>
-    <path d="M90 50 Q95 60 90 70" strokeLinecap="round"/>
+    <circle cx="50" cy="50" r="48" strokeWidth="0.8" opacity="0.6"/>
+    <circle cx="50" cy="50" r="35" strokeDasharray="2 2" opacity="0.4"/>
+    {/* Sun Star */}
+    <path d="M50 35 L54 45 L64 45 L56 52 L60 62 L50 56 L40 62 L44 52 L36 45 L46 45 Z" fill="currentColor" opacity="0.2"/>
+    <path d="M50 20 L50 10 M50 90 L50 80 M10 50 L20 50 M90 50 L80 50" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
   </svg>
 );
 
-// --- MAIN APP COMPONENT ---
+// --- MAIN APP ---
 export default function App() {
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [audioEnded, setAudioEnded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(true);
   
-  // 3D rotation state
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
+  // Refs for High Performance Animation (No React Re-renders for movement)
+  const cardRef = useRef(null);      // The 3D Card
+  const containerRef = useRef(null); // The Container detecting mouse
+  const requestRef = useRef(null);
   
+  // Physics State
+  const targetRotate = useRef({ x: 0, y: 0 });
+  const currentRotate = useRef({ x: 0, y: 0 });
+
   const currentItem = timelineData[currentIndex];
 
-  // --- AUDIO / SPEECH LOGIC ---
+  // --- AUDIO LOGIC ---
   const speak = (text) => {
     if (!window.speechSynthesis) return;
-    
-    // Cancel previous
-    window.speechSynthesis.cancel();
-    
-    if (isMuted) {
-      // If muted, simulate reading time then finish
-      setTimeout(() => setAudioEnded(true), 3000);
-      return;
-    }
+    window.speechSynthesis.cancel(); // Stop previous
+    if (isMuted) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'vi-VN';
-    utterance.rate = 0.9; // Slightly slower for solemnity
-    utterance.pitch = 0.9; // Deeper voice
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setAudioEnded(false);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setAudioEnded(true);
-    };
-
+    utterance.lang = 'vi-VN'; 
+    utterance.rate = 1.0;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
     if (started) {
+      setLoadingImage(true);
       speak(currentItem.description);
     }
-    // Cleanup on unmount
     return () => window.speechSynthesis.cancel();
   }, [currentIndex, started, isMuted]);
 
+  // --- ANIMATION LOOP (The "Smooth" Logic) ---
+  const animate = () => {
+    // Lerp (Linear Interpolation) for smoothness: 
+    // Current moves 5% (0.05) towards Target every frame.
+    const ease = 0.05; 
+    
+    currentRotate.current.x += (targetRotate.current.x - currentRotate.current.x) * ease;
+    currentRotate.current.y += (targetRotate.current.y - currentRotate.current.y) * ease;
 
-  // --- 3D MOUSE EFFECT ---
+    if (cardRef.current) {
+      // Apply transform directly to DOM
+      cardRef.current.style.transform = `perspective(1000px) rotateX(${currentRotate.current.x}deg) rotateY(${currentRotate.current.y}deg)`;
+    }
+    
+    requestRef.current = requestAnimationFrame(animate);
+  };
+
+  useEffect(() => {
+    if (started) {
+      requestRef.current = requestAnimationFrame(animate);
+
+      // --- GYROSCOPE (Mobile) ---
+      const handleOrientation = (e) => {
+        // Limit tilt to prevent flipping
+        const beta = Math.max(-30, Math.min(30, e.beta || 0));   // Front/Back tilt
+        const gamma = Math.max(-30, Math.min(30, e.gamma || 0)); // Left/Right tilt
+        
+        targetRotate.current = {
+          x: beta,      // Beta tilts X axis
+          y: gamma / 1.5 // Gamma tilts Y axis (reduced sensitivity)
+        };
+      };
+
+      // Check permission for iOS 13+ if needed (optional implementation block), standard here:
+      window.addEventListener('deviceorientation', handleOrientation);
+
+      return () => {
+        if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        window.removeEventListener('deviceorientation', handleOrientation);
+      };
+    }
+  }, [started]);
+
+  // --- MOUSE MOVEMENT (Desktop) ---
   const handleMouseMove = (e) => {
     if (!containerRef.current) return;
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - left) / width - 0.5;
-    const y = (e.clientY - top) / height - 0.5;
     
-    // Rotate slightly based on mouse position
-    setRotation({ x: y * 10, y: -x * 10 });
+    // Calculate mouse position relative to center of screen (-1 to 1)
+    const { innerWidth, innerHeight } = window;
+    const x = (e.clientX / innerWidth) * 2 - 1;
+    const y = (e.clientY / innerHeight) * 2 - 1;
+
+    // Update target rotation
+    targetRotate.current = {
+      x: -y * 15, // Invert Y so moving mouse up looks up (tilts back)
+      y: x * 15   // Moving mouse right looks right (tilts right)
+    };
   };
 
   const handleNext = () => {
     if (currentIndex < timelineData.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setAudioEnded(false);
-      setRotation({ x: 0, y: 0 }); // Reset 3D
+      // Reset rotation slightly for effect
+      targetRotate.current = { x: 0, y: 0 };
     }
   };
 
   const handleRestart = () => {
     setCurrentIndex(0);
-    setAudioEnded(false);
-    setRotation({ x: 0, y: 0 });
-    speak(timelineData[0].description);
+    targetRotate.current = { x: 0, y: 0 };
   };
 
   // --- RENDER ---
   if (!started) {
     return (
-      <div className="min-h-screen bg-[#2b0a0a] flex items-center justify-center relative overflow-hidden font-serif text-amber-500">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-           <div className="absolute top-[-20%] left-[-20%] w-[140%] h-[140%]">
-             <DongSonPattern className="w-full h-full animate-spin-slow" />
-           </div>
+      <div className="min-h-screen bg-[#120505] flex items-center justify-center relative overflow-hidden font-sans">
+        {/* Fonts Injection */}
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Nunito+Sans:wght@300;400;600&display=swap');
+          .font-cinzel { font-family: 'Cinzel', serif; }
+          .font-nunito { font-family: 'Nunito Sans', sans-serif; }
+        `}</style>
+
+        <div className="absolute inset-0 opacity-10 animate-[spin_60s_linear_infinite] pointer-events-none">
+             <DongSonPattern className="w-[120vmax] h-[120vmax] -translate-x-1/4 -translate-y-1/4 text-amber-700" />
         </div>
         
-        <div className="z-10 text-center p-8 border-4 border-amber-600/50 bg-black/60 backdrop-blur-sm max-w-2xl mx-4 shadow-2xl rounded-sm">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-amber-500 uppercase tracking-widest drop-shadow-md">
+        <div className="z-10 text-center p-8 bg-black/60 backdrop-blur-md border-y-2 border-amber-600/50 max-w-2xl mx-4 shadow-2xl animate-fade-in-up">
+          <div className="flex justify-center mb-6">
+            <BookOpen className="w-12 h-12 text-amber-500" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-amber-500 uppercase tracking-widest font-cinzel drop-shadow-md">
             Hào Khí Việt Nam
           </h1>
-          <h2 className="text-xl md:text-2xl text-amber-200 mb-8 font-light italic">
-            Bảo tàng số 3D chào mừng ngày 22/12
-          </h2>
-          <p className="mb-8 text-gray-300">
-            Trải nghiệm hành trình lịch sử của Quân đội nhân dân Việt Nam qua không gian tương tác hình ảnh và âm thanh.
-            <br/><span className="text-sm opacity-70">(Vui lòng bật âm thanh thiết bị)</span>
+          <p className="text-gray-300 font-nunito text-lg mb-8 leading-relaxed">
+            Hành trình lịch sử hào hùng của Quân đội nhân dân Việt Nam.<br/>
+            Trải nghiệm tương tác 3D và âm thanh sống động.
           </p>
           <button 
             onClick={() => setStarted(true)}
-            className="group relative px-8 py-4 bg-red-800 text-amber-100 font-bold uppercase tracking-wider overflow-hidden shadow-lg hover:bg-red-700 transition-all duration-300 border border-amber-500"
+            className="px-10 py-4 bg-red-800 hover:bg-red-700 text-white font-bold tracking-widest uppercase transition-all duration-300 rounded-sm shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center gap-3 mx-auto group font-cinzel"
           >
-            <span className="relative z-10 flex items-center gap-2">
-              Bắt đầu tham quan <ChevronRight />
-            </span>
-            <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+            <span>Bắt đầu</span>
+            <ChevronRight className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </div>
@@ -211,214 +213,165 @@ export default function App() {
 
   return (
     <div 
-      className="min-h-screen bg-[#1a0505] text-amber-50 font-serif flex flex-col relative overflow-hidden selection:bg-red-900 selection:text-white"
+      ref={containerRef}
+      className="min-h-screen bg-[#0a0202] text-amber-50 flex flex-col relative overflow-hidden font-nunito"
       onMouseMove={handleMouseMove}
     >
-      {/* Background Decor */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')]"></div>
-      <div className="absolute -left-48 -bottom-48 w-96 h-96 text-amber-900/20 animate-spin-slow">
-        <DongSonPattern className="w-full h-full" />
-      </div>
-      <div className="absolute -right-48 -top-48 w-96 h-96 text-amber-900/20 animate-spin-slow">
-        <DongSonPattern className="w-full h-full" />
+       {/* Global Styles */}
+       <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Nunito+Sans:wght@300;400;600&display=swap');
+          .font-cinzel { font-family: 'Cinzel', serif; }
+          .font-nunito { font-family: 'Nunito Sans', sans-serif; }
+          .backface-hidden { backface-visibility: hidden; }
+          
+          /* Custom Scrollbar */
+          ::-webkit-scrollbar { width: 6px; }
+          ::-webkit-scrollbar-track { bg: #000; }
+          ::-webkit-scrollbar-thumb { background: #78350f; border-radius: 10px; }
+
+          @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0; }
+          }
+       `}</style>
+
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#2b0a0a_0%,_#000000_100%)] z-0"></div>
+      <div className="absolute top-0 right-0 opacity-10 w-96 h-96 pointer-events-none">
+        <DongSonPattern className="w-full h-full text-amber-500" />
       </div>
 
-      {/* Header / Navbar */}
-      <header className="z-50 px-6 py-4 flex justify-between items-center border-b border-amber-900/50 bg-black/40 backdrop-blur-md">
+      {/* Header */}
+      <header className="z-50 px-6 py-4 flex justify-between items-center border-b border-amber-900/30 bg-black/40 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-           <div className="w-10 h-10 border-2 border-amber-500 rounded-full flex items-center justify-center bg-red-900">
-             <span className="text-amber-400 font-bold">VN</span>
-           </div>
-           <div>
-             <h1 className="text-amber-500 font-bold tracking-wider text-sm md:text-base uppercase">Bảo tàng QĐND Việt Nam</h1>
-             <p className="text-xs text-amber-300/60">Kỷ niệm ngày 22/12</p>
-           </div>
+           <div className="w-8 h-8 bg-red-800 rounded flex items-center justify-center font-cinzel font-bold text-amber-400 border border-amber-600">VN</div>
+           <span className="text-amber-500 font-cinzel font-bold tracking-wider text-sm md:text-base hidden md:block">
+             Bảo tàng Lịch sử Số
+           </span>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="text-xs text-amber-400/80 hidden md:block">
-            {currentIndex + 1} / {timelineData.length} Giai đoạn
+          <div className="flex items-center gap-1">
+            {timelineData.map((_, i) => (
+              <div 
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-8 bg-amber-500' : 'w-2 bg-gray-800'}`}
+              ></div>
+            ))}
           </div>
           <button 
             onClick={() => setIsMuted(!isMuted)}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors text-amber-400"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-amber-400"
           >
-            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} className={isSpeaking ? "animate-pulse" : ""} />}
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} className={isSpeaking ? "text-green-400" : ""} />}
           </button>
         </div>
       </header>
 
-      {/* Main 3D Stage */}
-      <main className="flex-1 flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-8 perspective-1000 relative">
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col md:flex-row items-center justify-center w-full max-w-7xl mx-auto p-4 z-10 gap-8 md:gap-16">
         
-        {/* Left: Image Canvas (The 3D Object) */}
-        <div className="w-full md:w-3/5 h-[50vh] md:h-[70vh] flex items-center justify-center perspective-2000 relative z-10 group">
+        {/* 3D CARD SECTION */}
+        <div className="w-full md:w-1/2 flex items-center justify-center perspective-[2000px]">
           <div 
-            ref={containerRef}
-            className="relative w-full h-full transition-transform duration-100 ease-out preserve-3d"
-            style={{
-              transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-            }}
+            ref={cardRef}
+            className="relative w-full max-w-xl aspect-[4/3] will-change-transform"
+            style={{ transformStyle: 'preserve-3d' }}
           >
-            {/* The Picture Frame */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-black p-2 shadow-2xl border-[8px] border-amber-900/80 rounded-sm transform-style-3d">
-              {/* Inner Gold Border */}
-              <div className="absolute inset-0 border border-amber-500/50 pointer-events-none z-20 m-1"></div>
-              
-              {/* Corner Decorations */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-amber-500 z-30 m-2"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-amber-500 z-30 m-2"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-amber-500 z-30 m-2"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-amber-500 z-30 m-2"></div>
-
-              {/* The Image */}
-              <div className="w-full h-full overflow-hidden bg-black relative">
+            {/* The Frame Content */}
+            <div className="absolute inset-0 bg-gray-900 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-amber-900/50 overflow-hidden group">
+               
+               {/* Image */}
+               <div className={`w-full h-full transition-opacity duration-700 bg-black ${loadingImage ? 'opacity-50' : 'opacity-100'}`}>
                  <img 
-                    src={currentItem.image} 
-                    alt={currentItem.title}
-                    className="w-full h-full object-cover opacity-90 transition-transform duration-[10s] hover:scale-110 ease-linear"
-                    onError={(e) => {
-                      if (currentItem.fallbackImage && e.target.src !== currentItem.fallbackImage) {
-                         e.target.src = currentItem.fallbackImage;
-                      } else {
-                         e.target.style.display = 'none'; // Hide if both fail
+                   src={currentItem.image}
+                   alt={currentItem.title}
+                   onLoad={() => setLoadingImage(false)}
+                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s] ease-linear"
+                   onError={(e) => {
+                      if (currentItem.fallback && e.target.src !== currentItem.fallback) {
+                         e.target.src = currentItem.fallback;
                       }
-                    }}
+                   }}
                  />
-                 {/* Vignette Overlay */}
-                 <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/60 pointer-events-none"></div>
-              </div>
+               </div>
 
-              {/* Reflection/Gloss */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none z-40"></div>
+               {/* Overlay Gradient */}
+               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none"></div>
+
+               {/* Frame Details */}
+               <div className="absolute inset-0 border-[6px] border-[#2a1a10] pointer-events-none z-20"></div>
+               <div className="absolute inset-0 border border-amber-500/30 m-2 pointer-events-none z-20"></div>
+               
+               {/* Year Badge floating in 3D */}
+               <div 
+                  className="absolute bottom-6 left-6 z-30 transform translate-z-10"
+                  style={{ transform: 'translateZ(30px)' }}
+               >
+                  <span className="block text-5xl md:text-7xl font-cinzel font-bold text-amber-500/20 leading-none">
+                    {currentItem.year}
+                  </span>
+                  <span className="absolute top-1/2 left-0 -translate-y-1/2 text-xl font-bold text-amber-100 tracking-widest pl-2">
+                    {currentItem.year}
+                  </span>
+               </div>
             </div>
 
-            {/* Shadow beneath frame */}
-            <div className="absolute -bottom-16 left-10 right-10 h-8 bg-black/50 blur-xl transform rotateX(60deg) z-0"></div>
+            {/* Shadow under the card */}
+            <div 
+              className="absolute -bottom-12 left-10 right-10 h-4 bg-black/60 blur-xl rounded-full"
+              style={{ transform: 'translateZ(-50px) rotateX(90deg)' }}
+            ></div>
           </div>
         </div>
 
-        {/* Right: Information & Controls */}
-        <div className="w-full md:w-2/5 flex flex-col justify-center space-y-6 md:pl-8 z-20">
+        {/* INFO SECTION */}
+        <div className="w-full md:w-1/2 flex flex-col justify-center space-y-6">
+          <div className="space-y-2">
+             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-900/30 border border-amber-800/50 rounded-full text-xs text-amber-300 uppercase tracking-widest font-bold w-fit">
+               <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+               Giai đoạn lịch sử
+             </div>
+             <h2 className="text-3xl md:text-5xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-600 leading-tight">
+               {currentItem.title}
+             </h2>
+          </div>
+
+          <div className="relative pl-6 border-l-2 border-amber-800/50">
+             <p className="text-base md:text-lg text-gray-300 leading-relaxed font-nunito font-light">
+               {currentItem.description}
+             </p>
+             {isSpeaking && (
+               <div className="absolute top-0 right-0 opacity-50">
+                 <div className="w-4 h-4 border-2 border-amber-500 rounded-full animate-[pulse-ring_1.5s_infinite]"></div>
+               </div>
+             )}
+          </div>
+
+          <div className="pt-4 flex gap-4">
+             {currentIndex < timelineData.length - 1 ? (
+               <button 
+                 onClick={handleNext}
+                 className="flex-1 bg-amber-700 hover:bg-amber-600 text-white py-3 px-6 rounded-sm font-cinzel font-bold tracking-widest uppercase transition-all shadow-lg hover:shadow-amber-900/50 flex items-center justify-center gap-2"
+               >
+                 Tiếp theo <ChevronRight size={18} />
+               </button>
+             ) : (
+               <button 
+                 onClick={handleRestart}
+                 className="flex-1 bg-red-900 hover:bg-red-800 text-white py-3 px-6 rounded-sm font-cinzel font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
+               >
+                 <RefreshCw size={18} /> Xem lại
+               </button>
+             )}
+          </div>
           
-          <div className="space-y-2 animate-fade-in-up">
-            <span className="inline-block px-3 py-1 bg-red-900/50 border border-red-700 text-red-200 text-sm tracking-widest font-bold rounded">
-              GIAI ĐOẠN {currentItem.year}
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-amber-500 leading-tight drop-shadow-lg">
-              {currentItem.title}
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-amber-600 to-transparent"></div>
+          <div className="text-center text-xs text-gray-600 font-mono pt-4">
+             Mẹo: Di chuột hoặc nghiêng thiết bị để đổi góc nhìn
           </div>
-
-          <div className="relative bg-black/40 p-6 border-l-4 border-amber-700 backdrop-blur-sm shadow-inner min-h-[150px]">
-            <p className="text-lg text-amber-100/90 leading-relaxed italic">
-              "{currentItem.description}"
-            </p>
-            {isSpeaking && (
-              <div className="absolute top-4 right-4 flex gap-1">
-                <span className="w-1 h-4 bg-amber-500 animate-music-bar-1"></span>
-                <span className="w-1 h-4 bg-amber-500 animate-music-bar-2"></span>
-                <span className="w-1 h-4 bg-amber-500 animate-music-bar-3"></span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4 h-16">
-            {currentIndex < timelineData.length - 1 ? (
-              <button
-                onClick={handleNext}
-                disabled={!audioEnded}
-                className={`
-                  flex items-center gap-3 px-8 py-3 rounded-sm font-bold tracking-wider uppercase transition-all duration-500
-                  ${audioEnded 
-                    ? 'bg-amber-600 text-white hover:bg-amber-500 shadow-[0_0_20px_rgba(217,119,6,0.5)] translate-y-0 opacity-100' 
-                    : 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50 translate-y-2 grayscale'
-                  }
-                `}
-              >
-                Tiếp bước quân hành <ChevronRight className={audioEnded ? "animate-bounce-x" : ""} />
-              </button>
-            ) : (
-              <button
-                onClick={handleRestart}
-                className="flex items-center gap-3 px-8 py-3 bg-red-800 hover:bg-red-700 text-white rounded-sm font-bold tracking-wider uppercase shadow-lg transition-all"
-              >
-                <RefreshCcw size={18} /> Xem lại từ đầu
-              </button>
-            )}
-            
-            {!audioEnded && (
-              <span className="text-xs text-amber-500/50 animate-pulse">
-                Đang thuyết minh...
-              </span>
-            )}
-          </div>
-
         </div>
+
       </main>
-
-      {/* Footer Timeline Dots */}
-      <footer className="h-16 border-t border-amber-900/30 bg-black/60 flex items-center justify-center gap-2 overflow-x-auto px-4 w-full z-30 backdrop-blur-md">
-        {timelineData.map((item, idx) => (
-          <button
-            key={item.id}
-            onClick={() => {
-              setCurrentIndex(idx);
-              setAudioEnded(false);
-              setRotation({ x: 0, y: 0 });
-            }}
-            className={`
-              w-3 h-3 rounded-full transition-all duration-300 relative group
-              ${idx === currentIndex ? 'bg-amber-500 scale-150 shadow-[0_0_10px_#f59e0b]' : 'bg-gray-700 hover:bg-gray-500'}
-            `}
-          >
-             <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black/90 text-amber-100 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">
-               {item.year}
-             </span>
-          </button>
-        ))}
-      </footer>
-
-      <style>{`
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 60s linear infinite;
-        }
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .perspective-2000 {
-          perspective: 2000px;
-        }
-        @keyframes music-bar-1 { 0%, 100% { height: 4px; } 50% { height: 16px; } }
-        @keyframes music-bar-2 { 0%, 100% { height: 8px; } 50% { height: 12px; } }
-        @keyframes music-bar-3 { 0%, 100% { height: 6px; } 50% { height: 14px; } }
-        
-        .animate-music-bar-1 { animation: music-bar-1 0.6s ease-in-out infinite; }
-        .animate-music-bar-2 { animation: music-bar-2 0.8s ease-in-out infinite; }
-        .animate-music-bar-3 { animation: music-bar-3 0.7s ease-in-out infinite; }
-        
-        @keyframes shimmer {
-          100% { transform: translateX(100%); }
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-        @keyframes bounce-x {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(5px); }
-        }
-        .animate-bounce-x {
-          animation: bounce-x 1s infinite;
-        }
-      `}</style>
     </div>
   );
 }
