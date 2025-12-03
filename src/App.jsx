@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, ChevronRight, RefreshCw, BookOpen, Volume1 } from 'lucide-react';
+import { Volume2, VolumeX, ChevronRight, RefreshCw, BookOpen } from 'lucide-react';
 
 // --- DATA SOURCE ---
 const timelineData = [
@@ -62,14 +62,10 @@ const DongSonPattern = ({ className }) => (
 export default function App() {
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
-  // --- Audio State ---
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(1.0); // 0.0 to 1.0
-  const [voiceList, setVoiceList] = useState([]);
-
   const [loadingImage, setLoadingImage] = useState(true);
+  const [voiceList, setVoiceList] = useState([]);
   
   const cardRef = useRef(null);      
   const containerRef = useRef(null); 
@@ -80,85 +76,76 @@ export default function App() {
 
   const currentItem = timelineData[currentIndex];
 
-  // --- 1. LOAD VOICES ---
+  // --- 1. LOAD VOICES (QUAN TRỌNG) ---
   useEffect(() => {
     const getVoices = () => {
       let voices = window.speechSynthesis.getVoices();
+      console.log("Danh sách giọng tìm thấy:", voices.map(v => v.name)); // Debug: F12 để xem máy bạn có giọng nào
       setVoiceList(voices);
     };
+
     getVoices();
+    
+    // Chrome cần sự kiện này mới load đủ giọng
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = getVoices;
     }
   }, []);
 
-  // --- 2. HÀM ĐỌC NÂNG CAO (Volume + Voice) ---
+  // --- 2. HÀM ĐỌC (TÌM CHÍNH XÁC GIỌNG VIỆT) ---
   const speak = (text) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel(); 
-    
-    // Nếu Mute thì không đọc, nhưng vẫn giữ hàm để cancel cái cũ
-    if (isMuted || volume === 0) return;
+    if (isMuted) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // Tìm giọng Việt (Google > Microsoft > Fallback)
+    // --- THUẬT TOÁN TÌM GIỌNG ---
+    // Ưu tiên 1: Google Tiếng Việt (Giọng chị Google, rất chuẩn trên Chrome)
+    // Ưu tiên 2: Microsoft HoaiMy (Giọng chuẩn trên Windows)
+    // Ưu tiên 3: Bất kỳ giọng nào có mã 'vi-VN'
+    
     let selectedVoice = voiceList.find(v => v.name.includes("Google Tiếng Việt"));
-    if (!selectedVoice) selectedVoice = voiceList.find(v => v.name.includes("Microsoft HoaiMy"));
-    if (!selectedVoice) selectedVoice = voiceList.find(v => v.lang === "vi-VN");
+    
+    if (!selectedVoice) {
+      selectedVoice = voiceList.find(v => v.name.includes("Microsoft HoaiMy")); // HoaiMy Online (Edge) hoặc HoaiMy
+    }
+    
+    if (!selectedVoice) {
+      selectedVoice = voiceList.find(v => v.lang === "vi-VN");
+    }
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
       utterance.lang = "vi-VN";
+      console.log("Đang đọc bằng giọng:", selectedVoice.name);
     } else {
+      console.warn("KHÔNG TÌM THẤY GIỌNG VIỆT NAM. Vui lòng cài đặt gói ngôn ngữ.");
+      // Vẫn set lang để trình duyệt cố gắng fallback
       utterance.lang = "vi-VN"; 
     }
 
-    // Set Volume từ State
-    utterance.volume = volume; 
     utterance.rate = 1.0; 
-    
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onerror = (e) => {
+      console.error("Lỗi đọc:", e);
+      setIsSpeaking(false);
+    };
     
     window.speechSynthesis.speak(utterance);
   };
 
-  // Trigger đọc khi đổi slide
   useEffect(() => {
     if (started) {
       setLoadingImage(true);
+      // Delay nhỏ để đảm bảo voices đã load xong
       setTimeout(() => speak(currentItem.description), 100);
     }
     return () => window.speechSynthesis.cancel();
-  }, [currentIndex, started]); // Bỏ volume/mute ra khỏi dependency để tránh đọc lại khi kéo thanh trượt
+  }, [currentIndex, started, isMuted, voiceList]);
 
-  // Xử lý khi thay đổi volume slider
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (newVolume > 0 && isMuted) {
-      setIsMuted(false); // Tự động unmute khi kéo thanh trượt lên
-    }
-  };
-
-  // Xử lý nút Mute toggle
-  const toggleMute = () => {
-    if (isMuted) {
-      setIsMuted(false);
-      // Nếu volume đang về 0 mà bấm bật, thì set mặc định 0.5
-      if (volume === 0) setVolume(0.5);
-      // Đọc lại đoạn hiện tại nếu đang ở slide đó
-      speak(currentItem.description);
-    } else {
-      setIsMuted(true);
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  };
-
-  // --- ANIMATION ---
+  // --- ANIMATION & EVENT HANDLERS (GIỮ NGUYÊN) ---
   const animate = () => {
     const ease = 0.05; 
     currentRotate.current.x += (targetRotate.current.x - currentRotate.current.x) * ease;
@@ -194,7 +181,7 @@ export default function App() {
   };
 
   const handleNext = () => {
-    if (isSpeaking && !isMuted && volume > 0) return;
+    if (isSpeaking && !isMuted) return;
     if (currentIndex < timelineData.length - 1) {
       setCurrentIndex(prev => prev + 1);
       targetRotate.current = { x: 0, y: 0 };
@@ -230,7 +217,7 @@ export default function App() {
             Trải nghiệm tương tác 3D và âm thanh sống động.
           </p>
           <button 
-            onClick={() => { setStarted(true); setVolume(1.0); }}
+            onClick={() => setStarted(true)}
             className="px-10 py-4 bg-red-800 hover:bg-red-700 text-white font-bold tracking-widest uppercase transition-all duration-300 rounded-sm shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center gap-3 mx-auto group font-display"
           >
             <span>Bắt đầu</span>
@@ -251,28 +238,6 @@ export default function App() {
           @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito+Sans:wght@300;400;600&display=swap');
           .font-display { font-family: 'Playfair Display', serif; }
           .font-body { font-family: 'Nunito Sans', sans-serif; }
-          
-          /* Custom Range Slider */
-          input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-          }
-          input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #f59e0b; /* amber-500 */
-            cursor: pointer;
-            margin-top: -6px;
-          }
-          input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            background: #4b5563;
-            border-radius: 2px;
-          }
-          
           ::-webkit-scrollbar { width: 6px; }
           ::-webkit-scrollbar-track { bg: #000; }
           ::-webkit-scrollbar-thumb { background: #78350f; border-radius: 10px; }
@@ -294,33 +259,15 @@ export default function App() {
              Bảo tàng Lịch sử Số
            </span>
         </div>
-        
-        {/* --- KHU VỰC ĐIỀU KHIỂN & THANH TRƯỢT --- */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-1 hidden md:flex">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
             {timelineData.map((_, i) => (
               <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-8 bg-amber-500' : 'w-2 bg-gray-800'}`}></div>
             ))}
           </div>
-
-          <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
-            <button onClick={toggleMute} className="text-amber-400 hover:text-amber-300 transition-colors">
-              {isMuted || volume === 0 ? <VolumeX size={18} /> : 
-               volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} className={isSpeaking ? "text-green-400" : ""} />}
-            </button>
-            
-            {/* INPUT SLIDER CHO MỌI NỀN TẢNG */}
-            <input 
-              type="range" 
-              min="0" 
-              max="1" 
-              step="0.05" 
-              value={isMuted ? 0 : volume}
-              onChange={handleVolumeChange}
-              className="w-20 md:w-24 h-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity"
-              aria-label="Volume control"
-            />
-          </div>
+          <button onClick={() => setIsMuted(!isMuted)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-amber-400">
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} className={isSpeaking ? "text-green-400" : ""} />}
+          </button>
         </div>
       </header>
 
@@ -367,13 +314,11 @@ export default function App() {
              {currentIndex < timelineData.length - 1 ? (
                <button 
                  onClick={handleNext}
-                 disabled={isSpeaking && !isMuted && volume > 0}
+                 disabled={isSpeaking && !isMuted}
                  className={`flex-1 py-3 px-6 rounded-sm font-display font-bold tracking-widest uppercase transition-all shadow-lg flex items-center justify-center gap-2
-                   ${isSpeaking && !isMuted && volume > 0 
-                     ? 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-80' 
-                     : 'bg-amber-700 hover:bg-amber-600 text-white hover:shadow-amber-900/50'}`}
+                   ${isSpeaking && !isMuted ? 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-80' : 'bg-amber-700 hover:bg-amber-600 text-white hover:shadow-amber-900/50'}`}
                >
-                 {isSpeaking && !isMuted && volume > 0 ? <>Đang thuyết minh...</> : <>Tiếp theo <ChevronRight size={18} /></>}
+                 {isSpeaking && !isMuted ? <>Đang thuyết minh...</> : <>Tiếp theo <ChevronRight size={18} /></>}
                </button>
              ) : (
                <button onClick={handleRestart} className="flex-1 bg-red-900 hover:bg-red-800 text-white py-3 px-6 rounded-sm font-display font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2">
