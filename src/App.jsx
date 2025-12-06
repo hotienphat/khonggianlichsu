@@ -17,7 +17,7 @@ const timelineData = [
     title: "Chấn động địa cầu",
     subtitle: "Chiến thắng Điện Biên Phủ",
     description: "56 ngày đêm 'khoét núi, ngủ hầm, mưa dầm, cơm vắt'. Quân đội ta từ chân trần chí thép đã làm nên chiến thắng Điện Biên Phủ 'lừng lẫy năm châu, chấn động địa cầu', chấm dứt hoàn toàn ách đô hộ của thực dân Pháp.",
-    image: "https://upload.wikimedia.org/wikipedia/commons/9/90/Dien_Bien_Phu_Victory.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Victory_in_Battle_of_Dien_Bien_Phu.jpg",
   },
   {
     id: 3,
@@ -25,7 +25,7 @@ const timelineData = [
     title: "Huyền thoại Trường Sơn",
     subtitle: "Đường mòn Hồ Chí Minh",
     description: "Xẻ dọc Trường Sơn đi cứu nước. Tuyến đường huyết mạch vận chuyển sức người, sức của chi viện cho miền Nam ruột thịt. Nơi ý chí con người chiến thắng bom đạn và thiên nhiên khắc nghiệt.",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ho_Chi_Minh_trail_Laos.jpg/1280px-Ho_Chi_Minh_trail_Laos.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Ho_chi_minh_trail.jpg",
   },
   {
     id: 4,
@@ -33,7 +33,7 @@ const timelineData = [
     title: "Điện Biên Phủ trên không",
     subtitle: "12 ngày đêm rực lửa",
     description: "Hà Nội, tháng 12 năm 1972. Bằng bản lĩnh và trí tuệ, bộ đội Phòng không - Không quân đã vít cổ Pháo đài bay B-52, đập tan cuộc tập kích chiến lược của Mỹ, buộc đối phương phải ký Hiệp định Paris.",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/B-52_Dien_Bien_Phu.jpg/1024px-B-52_Dien_Bien_Phu.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/c/c3/Boeing_B-52_dropping_bombs.jpg",
   },
   {
     id: 5,
