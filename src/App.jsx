@@ -9,7 +9,7 @@ const timelineData = [
     title: "Khai sinh từ rừng thẳm",
     subtitle: "Thành lập Đội VN Tuyên truyền GPQ",
     description: "Ngày 22/12/1944, dưới tán rừng Trần Hưng Đạo, Đội Việt Nam Tuyên truyền Giải phóng quân ra đời. 34 chiến sĩ, vũ khí thô sơ nhưng ý chí thép, họ đã thề 'Cảm tử cho Tổ quốc quyết sinh', mở đầu trang sử vàng của Quân đội nhân dân Việt Nam.",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Doi_VNTTGPQ.jpg/1024px-Doi_VNTTGPQ.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/1/1d/Vo_Nguyen_Giap%2C_Vietminh_forces%2C_1944.jpg",
   },
   {
     id: 2,
